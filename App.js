@@ -3,114 +3,132 @@
  * https://github.com/facebook/react-native
  *
  * @format
- * @flow strict-local
+ * @flow
  */
 
-import React from 'react';
-import type {Node} from 'react';
+import React, {useState} from 'react';
 import {
   SafeAreaView,
-  ScrollView,
-  StatusBar,
   StyleSheet,
-  Text,
-  useColorScheme,
+  ScrollView,
   View,
+  Text,
+  StatusBar,
+  TextInput,
+  Button,
+  ActivityIndicator,
 } from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+import {Colors} from 'react-native/Libraries/NewAppScreen';
 
-/* $FlowFixMe[missing-local-annot] The type annotation(s) required by Flow's
- * LTI update could not be added via codemod */
-const Section = ({children, title}): Node => {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
+const LOGIN_STATUS = {
+  NOT_LOGGED_IN: -1,
+  LOGGING_IN: 0,
+  LOGGED_IN: 1,
 };
 
-const App: () => Node = () => {
-  const isDarkMode = useColorScheme() === 'dark';
+const App: () => React$Node = () => {
+  const [loginData, setLoginData] = useState({
+    username: '',
+    password: '',
+  });
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  const [loginStatus, setLoginStatus] = useState(LOGIN_STATUS.NOT_LOGGED_IN);
+
+  const onLoginDataChange = key => {
+    return value => {
+      const newLoginData = Object.assign({}, loginData);
+      newLoginData[key] = value;
+      setLoginData(newLoginData);
+    };
+  };
+
+  const onLoginPress = () => {
+    setLoginStatus(LOGIN_STATUS.LOGGING_IN);
+    setTimeout(() => {
+      setLoginStatus(LOGIN_STATUS.LOGGED_IN);
+    }, 1500);
   };
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.js</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    <>
+      <StatusBar barStyle="dark-content" />
+      <SafeAreaView style={styles.container}>
+        <ScrollView
+          contentInsetAdjustmentBehavior="automatic"
+          style={styles.scrollView}>
+          {loginStatus === LOGIN_STATUS.LOGGED_IN ? (
+            <View testID="dashboardView">
+              <Text style={styles.heading} testID="dashboardHeadingText">
+                Hello {loginData.username}
+              </Text>
+              <Text style={[styles.link, styles.mt12]}>Edit your profile</Text>
+            </View>
+          ) : (
+            <View testID="loginView">
+              <Text style={styles.heading}>Please Login</Text>
+              <Text style={styles.mt12}>Username</Text>
+              <TextInput
+                style={[styles.textInput, styles.mt12]}
+                placeholder={'Enter your username'}
+                onChangeText={onLoginDataChange('username')}
+                value={loginData.username}
+                testID="usernameInput"
+              />
+              <Text style={styles.mt12}>Password</Text>
+              <TextInput
+                secureTextEntry
+                style={[styles.textInput, styles.mt12, styles.mb12]}
+                placeholder={'Enter your password'}
+                onChangeText={onLoginDataChange('password')}
+                value={loginData.password}
+                testID="passwordInput"
+              />
+              <Button
+                title="Login"
+                onPress={onLoginPress}
+                testID="loginButton"
+              />
+              {loginStatus === LOGIN_STATUS.LOGGING_IN ? (
+                <ActivityIndicator style={styles.mt12} />
+              ) : null}
+            </View>
+          )}
+        </ScrollView>
+      </SafeAreaView>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  container: {
+    flex: 1,
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
+  scrollView: {
+    backgroundColor: Colors.white,
+    padding: 16,
   },
-  sectionDescription: {
-    marginTop: 8,
+  heading: {
+    textAlign: 'center',
     fontSize: 18,
-    fontWeight: '400',
   },
-  highlight: {
-    fontWeight: '700',
+  textInput: {
+    borderColor: Colors.lighter,
+    borderWidth: 1,
+    borderRadius: 4,
+    paddingLeft: 10,
+    paddingTop: 4,
+    paddingRight: 4,
+    paddingBottom: 4,
+  },
+  mt12: {
+    marginTop: 12,
+  },
+  mb12: {
+    marginBottom: 12,
+  },
+  link: {
+    color: '#3543bf',
   },
 });
 

@@ -1,23 +1,22 @@
-describe('Example', () => {
-  beforeAll(async () => {
-    await device.launchApp();
-  });
-
+// eslint-disable-next-line no-undef
+describe('Login flow test', () => {
   beforeEach(async () => {
-    await device.reloadReactNative();
+    await device.launchApp();
+    // await device.reloadReactNative();
   });
 
-  it('should have welcome screen', async () => {
-    await expect(element(by.id('welcome'))).toBeVisible();
+  it('should have login screen', async () => {
+    await expect(element(by.id('loginView'))).toBeVisible();
   });
 
-  it('should show hello screen after tap', async () => {
-    await element(by.id('hello_button')).tap();
-    await expect(element(by.text('Hello!!!'))).toBeVisible();
+  it('should fill login form', async () => {
+    await element(by.id('usernameInput')).typeText('zzzzz');
+    await element(by.id('passwordInput')).typeText('test123\n');
+    await element(by.id('loginButton')).tap();
   });
 
-  it('should show world screen after tap', async () => {
-    await element(by.id('world_button')).tap();
-    await expect(element(by.text('World!!!'))).toBeVisible();
+  it('should show dashboard screen', async () => {
+    await expect(element(by.id('dashboardView'))).toBeVisible();
+    await expect(element(by.id('loginView'))).not.toExist();
   });
 });
